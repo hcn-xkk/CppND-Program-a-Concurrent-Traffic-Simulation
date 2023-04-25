@@ -12,9 +12,9 @@ template <typename T> T MessageQueue<T>::receive() {
   // the queue using move semantics. The received object should then be returned
   // by the receive function.
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  std::lock_guard<std::mutex> uLock(_mutex);
+  std::unique_lock<std::mutex> uLock(_mutex);
 
-  _condition.wait(uLock, [this] { return !_messages.empty(); });
+  _condition.wait(uLock, [this]() { return !_messages.empty(); });
 
   T msg = _messages.back();
   _messages.pop_back();
@@ -36,14 +36,21 @@ template <typename T> void MessageQueue<T>::send(T &&msg) {
 /* Implementation of class "TrafficLight" */
 
 TrafficLight::TrafficLight() { _currentPhase = TrafficLightPhase::red; }
-/*
+
 void TrafficLight::waitForGreen() {
   // FP.5b : add the implementation of the method waitForGreen, in which an
-  infinite while - loop
-  // runs and repeatedly calls the receive function on the message queue.
-  // Once it receives TrafficLightPhase::green, the method returns.
+  // infinite while - loop runs and repeatedly calls the receive function on the
+  // message queue. Once it receives TrafficLightPhase::green, the method
+  // returns.
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    TrafficLightPhase light_phase = _queue.receive();
+    if (light_phase == TrafficLightPhase::green) {
+      return;
+    }
+  }
 }
-*/
+
 TrafficLightPhase TrafficLight::getCurrentPhase() { return _currentPhase; }
 
 void TrafficLight::simulate() {
