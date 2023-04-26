@@ -70,6 +70,7 @@ private:
   std::condition_variable _condition; // TODO: why does traffic light need this?
   std::mutex _mutex;                  // TODO: why does traffic light need this?
   TrafficLightPhase _currentPhase{TrafficLightPhase::red};
+  std::default_random_engine gen;
 };
 
 #endif

@@ -68,12 +68,15 @@ void TrafficLight::cycleThroughPhases() {
   // queue using move semantics. The cycle duration should be a random value
   // between 4 and 6 seconds. Also, the while-loop should use
   // std::this_thread::sleep_for to wait 1ms between two cycles.
+  std::uniform_int_distribution<> dist(4000, 6000);
+  int cycle_time = dist(gen);
+
   auto t1 = timeNow();
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     auto delta_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(timeNow() - t1);
-    if (delta_ms.count() > Config::kCyclingTimeMs) {
+    if (delta_ms.count() > cycle_time) {
       _currentPhase = (_currentPhase == TrafficLightPhase::red)
                           ? TrafficLightPhase::green
                           : TrafficLightPhase::red;
